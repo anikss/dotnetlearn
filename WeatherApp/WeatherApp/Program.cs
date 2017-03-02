@@ -1,116 +1,197 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Data;
 using System.Text;
-using System.Threading.Tasks;
-using System.IO;
 using System.Net;
-using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
-
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace WeatherApp
 {
     class Program
     {
-        static ManualResetEvent evnts = new ManualResetEvent(false); // Глобальная переменная для загрузки?
+        const string apiWeatherUrl = "http://api.wunderground.com/api/da7c79da65c82cdf/";
+        const string langApi = "lang:RU/";
         static void Main(string[] args)
         {
-            TestInternetConnection(); // Проверка соединения
-            // Запрос названия города у пользователя
-            // Отправка запроса погоды для выбранного города (запрос может вернуть: ошибку в названии города, ошибку соединения или вывести данные о погоде)
-            // Запрашиваем пользователя, хочет ли он продолжить?
+            const int internetAttempt = 20;
+            bool townExistStatus = new bool();
+            bool internetStatus = new bool();
+            string townLink ="";
+            string replyStatus;
+            string townName = "";
 
-            DownloadInfoAboutWeather_test1(); // Тест загрузки информации о погоде
-            DownloadInfoAboutWeather_test2();
+            // Проверка соединения.
+            int i = internetAttempt;  //Количество попыток соединений.
+            do
+            {
+                if (i==0) // Если попытки кончились, то выходим из цикла.
+                    break;
+                internetStatus = TestInternetConnection(out replyStatus);
+                Console.WriteLine(replyStatus);
+                if (internetStatus == false)
+                    Console.WriteLine($"Attempt left: {i}");
+                i--;
+
+            } while (!internetStatus);
+
+            // Запрос названия города у пользователя.
+            // Проверка названия города.
+
+            do
+            {
+                if (i == 0) break; // Если попытки подключения исчерпаны, то пропускаем цикл.
+
+                Console.WriteLine("Введите город и страну через запятую на английском языке, \n" +
+                                  "например, \"Moscow, Russia\". \n" +
+                                  "Для выхода наберите \"Exit\" или \"E\".");
+                townName = Console.ReadLine();
+                // Если пользователь пише exit или e то выходим из цикла.
+                if ((townName.ToLower() == "exit") || (townName.ToLower() == "e"))
+                    break;
+                // Проверяем название города.
+                CheckTownName(townName, out townExistStatus, out townLink);
+                //Console.WriteLine(townExistStatus);
+
+            } while (!townExistStatus); // Выходим, если получили одно точное соответсвие.
+
+            // Отправка запроса погоды для выбранного города.
+            if ((townName.ToLower() != "exit") && (townName.ToLower() != "e"))
+                 CheckWeather(townLink);
+
+            Console.WriteLine("\nОтлично поработали!");
             Console.ReadLine();
         }
 
-        static void TestInternetConnection() //Проверка интернет соединения
+        #region Проверка интернет соединения
+        private static bool TestInternetConnection(out string replyStatus) //Проверка интернет соединения.
         {
-            string pingAdress = "google.com"; // Задаем адрес для тестирования соединения
-            int pingDeley = 12000; // Задаем задержку для ping
-            Ping testPing = new Ping();
-            testPing.PingCompleted += new PingCompletedEventHandler(PingCompletedCallback); // Ловим эвент?
-            testPing.SendPingAsync(pingAdress, pingDeley); // Посылаем пинг
-
-        }
-
-        private static void PingCompletedCallback(object sender, PingCompletedEventArgs pingEventArgs)
-        {
-            if (pingEventArgs.Error != null)  // Если плйманый эвент с ошибкой
+            // Параметры тестирования
+            const string pingAddress = "google.com"; // Задаем адрес для тестирования соединения.
+            const int pingDelay = 2000; // Задаем задержку для ping, мс.
+            Ping testPing = new Ping(); // Создаем новый экземляр Ping.
+            
+            // Посылаем пинг, передаем адрес и задержку, получаем ответ в reply.
+            PingReply reply = null;
+            try
             {
-                Console.WriteLine("No internet connection"); // Выводим сообщение, что нет соединения
-                Console.WriteLine(pingEventArgs.Error.ToString()); // Печатаем ошибку 
+               reply = testPing.Send(pingAddress, pingDelay);
             }
-
-            PingReply reply = pingEventArgs.Reply; // Если ошибки не было, то получаем ответ
-            DisplayReply(reply); // Выводим ответ
-
-
-        }
-
-        public static void DisplayReply(PingReply reply)
-        {
-            if (reply == null)
-                return;
-            Console.WriteLine("ping status {0}", reply.Status);
+            // Ловим исключение, если интернет отключен аппаратно.
+            catch (Exception)
+            {
+                replyStatus = "Нет доступа в интернет. Пожалуйста, подключите интернет. \n" +
+                              "Пытаемся переподключиться...";
+                Thread.Sleep(3000); //Засымаем, мс.
+                return false;
+            }
+            // Если интернет есть, то возвращаем true.
             if (reply.Status == IPStatus.Success)
             {
-                Console.WriteLine("Adress: {0}", reply.Address.ToString());
-                Console.WriteLine("RoadTrip time {0}", reply.RoundtripTime);
-                Console.WriteLine("To to live: {0}", reply.Options.Ttl);
-                Console.WriteLine("Don't fragment: {0}", reply.Options.DontFragment);
-                Console.WriteLine("Buffer size: {0}", reply.Buffer.Length);
+                replyStatus = "Интеренет доступен.";
+                return true;
+            }
+            // Если инетернета нет, но он подключен аппаратно, возвращаем false.
+            else
+            {
+                replyStatus = "Возьникли неполадки с доступом к тестовому сайту. \n" +
+                              reply.Status.ToString() + ".\n" +
+                              "Пытаемся получить доступ еще раз...";
+                Thread.Sleep(1200); //Засымаем, мс.
+                return false;
             }
         }
+        #endregion
 
-
-        static void DownloadInfoAboutWeather_test1 () // Класс для загрузки информации о погоде
+        #region Проверка наличия места
+        private static void CheckTownName(string townName, out bool townExistStatus, out string townLink) // Проверка названия места.
         {
-            byte[] data = null; // Массив с байтами для определения размера скаченного? В итоге туда влезло все скаченное.
-            WebClient client = new WebClient(); // Инициализируем новый экземпляр метода WebClient, для скачивания информации по URL
-            client.DownloadDataCompleted +=
-                delegate (object sender, DownloadDataCompletedEventArgs e)
-                {
-                    data = e.Result;
-                    evnts.Set();
-                };
-            Console.WriteLine("starting...");
-            evnts.Reset();
-            client.DownloadDataAsync(new Uri("http://api.wunderground.com/api/da7c79da65c82cdf/geolookup/conditions/q/IA/Cedar_Rapids.json"));
-            evnts.WaitOne(); // wait to download complete
-
-            //string str = Encoding.Default.GetString(data); // Пробуем вставить результат в строку, для этого преобразуем массив символов в строку. Можно было скачать сразу все в строку, но того поломается счетчик.
-
-            Console.WriteLine("done. {0} bytes received;", data.Length);
-           // Console.WriteLine("{0}",str);
-        }
-
-        static void DownloadInfoAboutWeather_test2()
-        {
-            string url = "http://api.wunderground.com/api/da7c79da65c82cdf/conditions/q/CA/San_Francisco.json";
+            // Апи для проверки страны и города.
+            const string autocompleteUrl = "http://autocomplete.wunderground.com/aq?query="; 
+            string url = autocompleteUrl + townName; // Формируем ссылку с городом.
             WebClient client = new WebClient();
-            //client.DownloadDataCompleted += DownloadDataCompleted;
-            //client.DownloadDataAsync(new Uri(url));
-            client.DownloadStringCompleted += DownloadStringCompletd;
-            client.DownloadStringAsync(new Uri(url));
-            Console.ReadLine();
-        }
+            byte[] data = null; // Сюда придет ответ от API.
 
-        static void DownloadDataCompleted(object sender,
-    DownloadDataCompletedEventArgs e)
-        {
-            byte[] raw = e.Result;
-            Console.WriteLine(raw.Length + " bytes received");
+            try
+            {
+                data = client.DownloadData(new Uri(url)); // Загружаем данные в массив.
+            }
+            catch (Exception exception) // Ловим исключение, если API не работает.
+            {
+                Console.WriteLine("Проблемы с API. Попробуйте еще раз.");
+                //Console.WriteLine(exception.Message.ToString());
+            }
+            if (data != null) // Если данные загрузились
+            {
+                string jsonData = Encoding.Default.GetString(data); // Кодируем массив в строку.
+                //Создаем DataSet для json
+                DataSet townDataSet = JsonConvert.DeserializeObject<DataSet>(jsonData);
+                //Создаем таблицу и заполняем ее значениями из json (RESULTS).
+                DataTable townDataTable = townDataSet.Tables["RESULTS"]; 
+                Console.WriteLine();
+                foreach (DataRow townRow in townDataTable.Rows)
+                {
+                    Console.WriteLine(townRow["name"]);
+                }
+                // Возвращаем true, только если совпадение однозначное!
+                if (townDataTable.Rows.Count == 1)
+                {
+                    townExistStatus = true;
+                    DataRow linkRow = townDataTable.Rows[0];
+                    townLink = linkRow["l"].ToString();
+                }
+                else
+                {
+                    townExistStatus = false;
+                    townLink = "";
+                }
+            }
+            else // Если данные не загрузились, в т.ч. если ответ пустой.
+            {
+                townExistStatus = false;
+                townLink = "";
+            }
         }
+        #endregion
 
-        static void DownloadStringCompletd(object sender, DownloadStringCompletedEventArgs weatherEventArgs)
+        #region Запрос данных о погоде
+
+        private static void CheckWeather(string townLink)
         {
-            string WeatherJSON = weatherEventArgs.Result;
-            Console.WriteLine(WeatherJSON);
+            WebClient client = new WebClient();
+            byte[] data = null; // Сюда придет ответ от API.
+            string url = apiWeatherUrl + "forecast/" + langApi + townLink + ".json";
+
+            try
+            {
+                data = client.DownloadData(new Uri(url)); // Загружаем данные в массив.
+            }
+            catch (Exception exception) // Ловим исключение, если API не работает.
+            {
+                Console.WriteLine("Проблемы с API. Попробуйте еще раз.");
+                //Console.WriteLine(exception.Message.ToString());
+            }
+            if (data != null) // Если данные загрузились
+            {
+                string jsonData = Encoding.Default.GetString(data); // Кодируем массив в строку.
+                //Создаем DataSet для json
+                Console.WriteLine(jsonData);
+                /*
+                DataSet weatherDataSet = JsonConvert.DeserializeObject<DataSet>(jsonData);
+                Console.ReadLine();
+                //Создаем таблицу и заполняем ее значениями из json (forecast).
+                DataTable weatherDataTable = weatherDataSet.Tables["forecast"];
+    
+                foreach (DataRow weatherRow in weatherDataTable.Rows)
+                {
+                    Console.WriteLine(weatherRow["title"]);
+                    Console.WriteLine(weatherRow["fcttext"]);
+                }
+                */
+            }
         }
+        
+        #endregion
     }
 }
