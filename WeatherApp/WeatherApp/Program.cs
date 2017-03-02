@@ -15,6 +15,12 @@ namespace WeatherApp
     {
         const string apiWeatherUrl = "http://api.wunderground.com/api/da7c79da65c82cdf/";
         const string langApi = "lang:RU/";
+        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            MissingMemberHandling = MissingMemberHandling.Ignore
+        };
+
         static void Main(string[] args)
         {
             const int internetAttempt = 20;
@@ -187,8 +193,8 @@ namespace WeatherApp
             // Для простоты мы не парсим даты из JSON и пользуемся тем, что они идут всегда по порядку друг за другом, начиная с сегодняшней.
             var today = forecast[0];
             var tomorrow = forecast[1];
-            Console.WriteLine($"Temperature today: {today.High.Celsius}°C/{today.Low.Celsius}°C ({today.Conditions})");
-            Console.WriteLine($"Tomorrow: {tomorrow.High.Celsius}°C/{tomorrow.Low.Celsius}°C ({tomorrow.Conditions})");
+            Console.WriteLine($"Temperature today: {today.High}/{today.Low} ({today.Conditions})");
+            Console.WriteLine($"Tomorrow: {tomorrow.High}/{tomorrow.Low} ({tomorrow.Conditions})");
         }
 
         private static List<ForecastDay> ParseForecastDays(string jsonData)
@@ -196,7 +202,7 @@ namespace WeatherApp
             var parsed = JObject.Parse(jsonData);
             return parsed["forecast"]["simpleforecast"]["forecastday"]
                 .Children()
-                .Select(item => JsonConvert.DeserializeObject<ForecastDay>(item.ToString()))
+                .Select(item => JsonConvert.DeserializeObject<ForecastDay>(item.ToString(), SerializerSettings))
                 .ToList();
         }
 

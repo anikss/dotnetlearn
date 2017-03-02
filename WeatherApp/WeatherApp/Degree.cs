@@ -11,12 +11,17 @@ namespace WeatherApp
         /// Градусы Фаренгейта
         /// </summary>
         [JsonProperty("fahrenheit")]
-        public int Fahrenheit { get; set; }
+        public int? Fahrenheit { get; set; }
 
         /// <summary>
         /// Градусы Цельсия
         /// </summary>
         [JsonProperty("celsius")]
-        public int Celsius { get; set; }
+        public int? Celsius { get; set; }
+
+        public override string ToString()
+        {
+            return Celsius.HasValue ? Celsius + "°C" : "No data";
+        }
     }
 }
