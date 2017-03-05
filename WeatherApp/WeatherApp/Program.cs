@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -13,6 +15,12 @@ namespace WeatherApp
     {
         const string apiWeatherUrl = "http://api.wunderground.com/api/da7c79da65c82cdf/";
         const string langApi = "lang:RU/";
+        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            MissingMemberHandling = MissingMemberHandling.Ignore
+        };
+
         static void Main(string[] args)
         {
             const int internetAttempt = 20;
@@ -172,26 +180,32 @@ namespace WeatherApp
                 Console.WriteLine("Проблемы с API. Попробуйте еще раз.");
                 //Console.WriteLine(exception.Message.ToString());
             }
-            if (data != null) // Если данные загрузились
-            {
-                string jsonData = Encoding.Default.GetString(data); // Кодируем массив в строку.
-                //Создаем DataSet для json
-                Console.WriteLine(jsonData);
-                /*
-                DataSet weatherDataSet = JsonConvert.DeserializeObject<DataSet>(jsonData);
-                Console.ReadLine();
-                //Создаем таблицу и заполняем ее значениями из json (forecast).
-                DataTable weatherDataTable = weatherDataSet.Tables["forecast"];
-    
-                foreach (DataRow weatherRow in weatherDataTable.Rows)
-                {
-                    Console.WriteLine(weatherRow["title"]);
-                    Console.WriteLine(weatherRow["fcttext"]);
-                }
-                */
-            }
+
+            if (data == null)
+                return;
+
+            var jsonData = Encoding.UTF8.GetString(data);
+            //Console.WriteLine(jsonData);
+
+            var forecast = ParseForecastDays(jsonData);
+
+            // Выводим погоду на сегодня и на завтра.
+            // Для простоты мы не парсим даты из JSON и пользуемся тем, что они идут всегда по порядку друг за другом, начиная с сегодняшней.
+            var today = forecast[0];
+            var tomorrow = forecast[1];
+            Console.WriteLine($"Temperature today: {today.High}/{today.Low} ({today.Conditions})");
+            Console.WriteLine($"Tomorrow: {tomorrow.High}/{tomorrow.Low} ({tomorrow.Conditions})");
         }
-        
+
+        private static List<ForecastDay> ParseForecastDays(string jsonData)
+        {
+            var parsed = JObject.Parse(jsonData);
+            return parsed["forecast"]["simpleforecast"]["forecastday"]
+                .Children()
+                .Select(item => JsonConvert.DeserializeObject<ForecastDay>(item.ToString(), SerializerSettings))
+                .ToList();
+        }
+
         #endregion
     }
 }
