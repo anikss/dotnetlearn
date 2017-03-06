@@ -42,9 +42,20 @@ namespace ConsBITTREX
                 while (!Console.KeyAvailable)
                 {
                     DownloadMarketSummWaves(out marketData);
+                    if ((marketData != "Ошибка доступа в интернет!") && ((marketData != "Ошибка API!")) )
+                    { 
                     resultsDataOut = ParsApi(marketData);
                     PrintResult(resultsDataOut, hAlert, lAlert);
-                    CheckAskBid(resultsDataOut, ref hAlert, ref lAlert);                  
+                    CheckAskBid(resultsDataOut, ref hAlert, ref lAlert);
+                    }
+                    else
+                    {
+                        Console.WriteLine(marketData);
+                        Console.WriteLine("Ждем 10 секунд и пробуем еще раз.");
+                        StarWars();
+                        Thread.Sleep(10000);
+                    }
+
                 }
 
             } while (Console.ReadKey(true).Key != ConsoleKey.Escape);
@@ -63,9 +74,14 @@ namespace ConsBITTREX
             {
                 data = client.DownloadData(new Uri(url));
             }
-            catch (Exception exp)
+            catch (Exception ex)
             {
-                Console.WriteLine(exp.ToString());
+
+            }
+
+            finally
+            {
+                marketData = "Ошибка доступа в интернет!";
             }
 
             if (data != null)
@@ -348,6 +364,25 @@ namespace ConsBITTREX
             Thread.Sleep(250);
             Console.Beep(523, 125);
             Thread.Sleep(625);
+        }
+        private static void StarWars()
+        {
+            Console.Beep(300, 500);
+            Thread.Sleep(50);
+            Console.Beep(300, 500);
+            Thread.Sleep(50);
+            Console.Beep(300, 500);
+            Thread.Sleep(50);
+            Console.Beep(250, 500);
+            Thread.Sleep(50);
+            Console.Beep(350, 250);
+            Console.Beep(300, 500);
+            Thread.Sleep(50);
+            Console.Beep(250, 500);
+            Thread.Sleep(50);
+            Console.Beep(350, 250);
+            Console.Beep(300, 500);
+            Thread.Sleep(50);
         }
     }
 }
