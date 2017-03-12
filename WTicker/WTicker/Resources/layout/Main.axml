@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/linearLayout1">
+    <TextView
+        android:text="..."
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_width="match_parent"
+        android:layout_height="28.5dp"
+        android:id="@+id/marketName"
+        android:layout_marginLeft="9.5dp" />
+    <TextView
+        android:text="..."
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="21.0dp"
+        android:id="@+id/timeStamp"
+        android:layout_marginLeft="10.5dp" />
+    <TextView
+        android:text="____________________________________________________"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="17.5dp"
+        android:id="@+id/textView2"
+        android:layout_marginTop="0.0dp"
+        android:gravity="center"
+        android:layout_marginBottom="7.5dp" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout2">
+        <TextView
+            android:text="Volume:"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="138.5dp"
+            android:layout_height="match_parent"
+            android:id="@+id/textVolume"
+            android:layout_marginLeft="17.0dp"
+            android:layout_marginRight="30.0dp" />
+        <TextView
+            android:text="Wait"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="198.5dp"
+            android:layout_height="match_parent"
+            android:id="@+id/volumeView"
+            android:layout_marginLeft="0.0dp"
+            android:layout_marginRight="10.0dp"
+            android:gravity="left"
+            android:layout_gravity="right" />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout2">
+        <TextView
+            android:text="Base Volume:"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="139.0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/textView1"
+            android:layout_marginLeft="17.0dp"
+            android:layout_marginRight="30.0dp" />
+        <TextView
+            android:text="Wait"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="198.0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/baseVolumeView"
+            android:layout_marginLeft="0.0dp"
+            android:layout_marginRight="10.0dp"
+            android:gravity="left"
+            android:layout_gravity="right" />
+    </LinearLayout>
+    <TextView
+        android:text="____________________________________________________"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="17.5dp"
+        android:id="@+id/textView2"
+        android:layout_marginTop="0.0dp"
+        android:gravity="center"
+        android:layout_marginBottom="5.5dp" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout2">
+        <TextView
+            android:text="High:"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="185.0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/textView1"
+            android:layout_marginLeft="17.0dp"
+            android:layout_marginRight="60.0dp" />
+        <TextView
+            android:text="Wait"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="99.5dp"
+            android:layout_height="match_parent"
+            android:id="@+id/highView"
+            android:layout_marginLeft="0.0dp"
+            android:textColor="#ff00ddff"
+            android:layout_marginRight="10.0dp"
+            android:gravity="left"
+            android:layout_gravity="right" />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout2">
+        <TextView
+            android:text="Low:"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="185.0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/textView1"
+            android:layout_marginLeft="17.0dp"
+            android:layout_marginRight="60.0dp" />
+        <TextView
+            android:text="Wait"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="99.5dp"
+            android:layout_height="match_parent"
+            android:id="@+id/lowView"
+            android:layout_marginLeft="0.0dp"
+            android:textColor="#ff00ddff"
+            android:layout_marginRight="10.0dp"
+            android:gravity="left"
+            android:layout_gravity="right" />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout2">
+        <TextView
+            android:text="Bid:"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="185.0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/textView1"
+            android:layout_marginLeft="17.0dp"
+            android:layout_marginRight="60.0dp" />
+        <TextView
+            android:text="Wait"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="99.5dp"
+            android:layout_height="match_parent"
+            android:id="@+id/bidView"
+            android:layout_marginLeft="0.0dp"
+            android:textColor="#ff00ddff"
+            android:layout_marginRight="10.0dp"
+            android:gravity="left"
+            android:layout_gravity="right" />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout2">
+        <TextView
+            android:text="Ask:"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="185.0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/textView1"
+            android:layout_marginLeft="17.0dp"
+            android:layout_marginRight="60.0dp" />
+        <TextView
+            android:text="Wait"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="99.5dp"
+            android:layout_height="match_parent"
+            android:id="@+id/askView"
+            android:layout_marginLeft="0.0dp"
+            android:textColor="#ff00ddff"
+            android:layout_marginRight="10.0dp"
+            android:gravity="left"
+            android:layout_gravity="right" />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout2">
+        <TextView
+            android:text="Last:"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="185.0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/textView1"
+            android:layout_marginLeft="17.0dp"
+            android:layout_marginRight="60.0dp" />
+        <TextView
+            android:text="Wait"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="99.5dp"
+            android:layout_height="match_parent"
+            android:id="@+id/lastPriceView"
+            android:layout_marginLeft="0.0dp"
+            android:textColor="#ff3030"
+            android:layout_marginRight="10.0dp"
+            android:gravity="left"
+            android:layout_gravity="right" />
+    </LinearLayout>
+    <TextView
+        android:text="____________________________________________________"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="17.5dp"
+        android:id="@+id/textView2"
+        android:layout_marginTop="0.0dp"
+        android:gravity="center"
+        android:layout_marginBottom="5.5dp" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout2">
+        <TextView
+            android:text="High alert:"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="84.0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/textView1"
+            android:layout_marginLeft="17.0dp"
+            android:layout_marginRight="60.0dp"
+            android:gravity="center_vertical" />
+        <EditText
+            android:inputType="numberDecimal"
+            android:layout_width="92.5dp"
+            android:layout_height="match_parent"
+            android:id="@+id/editHigh"
+            android:layout_marginLeft="10.5dp"
+            android:text="0.000" />
+        <Button
+            android:text="Set"
+            android:id="@+id/setHigh"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout2">
+        <TextView
+            android:text="Low alert:"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="84.0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/textView1"
+            android:layout_marginLeft="17.0dp"
+            android:layout_marginRight="60.0dp"
+            android:gravity="center_vertical" />
+        <EditText
+            android:inputType="numberDecimal"
+            android:layout_width="92.5dp"
+            android:layout_height="match_parent"
+            android:id="@+id/editLow"
+            android:layout_marginLeft="10.5dp"
+            android:text="0.000"
+            android:layout_marginRight="0.0dp" />
+        <Button
+            android:text="Set"
+            android:id="@+id/setLow"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+    <TextView
+        android:text="____________________________________________________"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="17.5dp"
+        android:id="@+id/textView2"
+        android:layout_marginTop="0.0dp"
+        android:gravity="center"
+        android:layout_marginBottom="5.5dp" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout2">
+        <TextView
+            android:text="Timer:"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="84.0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/textView1"
+            android:layout_marginLeft="17.0dp"
+            android:layout_marginRight="60.0dp"
+            android:gravity="center_vertical" />
+        <EditText
+            android:inputType="numberDecimal"
+            android:layout_width="49.0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/editTime"
+            android:layout_marginLeft="10.5dp"
+            android:text="5" />
+        <TextView
+            android:text=", sec."
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="43.0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/textView1"
+            android:layout_marginLeft="0.0dp"
+            android:layout_marginRight="0.0dp"
+            android:gravity="center_vertical" />
+        <Button
+            android:text="Set"
+            android:id="@+id/setTime"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+    <TextView
+        android:text="____________________________________________________"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="17.5dp"
+        android:id="@+id/textView2"
+        android:layout_marginTop="0.0dp"
+        android:gravity="center"
+        android:layout_marginBottom="5.5dp" />
+</LinearLayout>
