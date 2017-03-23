@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Android.Content;
+using Android.Webkit;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Timer = System.Timers.Timer;
@@ -30,6 +31,12 @@ namespace WTicker
 
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Main);
+
+            WebView webGraph = FindViewById<WebView>(Resource.Id.webGraph);
+            webGraph.SetWebViewClient(new WebViewClient()); // stops request going to Web Browser
+            webGraph.Settings.JavaScriptEnabled = true;
+            webGraph.LoadUrl("https://bittrex.com/market/MarketStandardChart?marketName=BTC-WAVES");
+
             EditText editHigh = FindViewById<EditText>(Resource.Id.editHigh);
             EditText editLow = FindViewById<EditText>(Resource.Id.editLow);
             EditText editTime = FindViewById<EditText>(Resource.Id.editTime);

@@ -6,6 +6,7 @@ using System.Text;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -13,29 +14,18 @@ namespace WeatherApp
 {
     class Program
     {
-        const string apiWeatherUrl = "http://api.wunderground.com/api/da7c79da65c82cdf/";
-        const string langApi = "lang:RU/";
-        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            MissingMemberHandling = MissingMemberHandling.Ignore
-        };
-
         static void Main(string[] args)
         {
             const int internetAttempt = 20;
-            bool townExistStatus = new bool();
-            bool internetStatus = new bool();
-            string townLink ="";
-            string replyStatus;
-            string townName = "";
 
             // Проверка соединения.
             int i = internetAttempt;  //Количество попыток соединений.
+            bool internetStatus;
             do
             {
                 if (i==0) // Если попытки кончились, то выходим из цикла.
                     break;
+                string replyStatus;
                 internetStatus = TestInternetConnection(out replyStatus);
                 Console.WriteLine(replyStatus);
                 if (internetStatus == false)
@@ -43,33 +33,20 @@ namespace WeatherApp
                 i--;
 
             } while (!internetStatus);
+            Console.Write("Введите город или города через пробел: ");
+            Weather weather = new Weather();
+            string[] townName = Console.ReadLine().Split(' ');
 
-            // Запрос названия города у пользователя.
-            // Проверка названия города.
-
-            do
+            for (i = 0; i < townName.GetLength(0); i++)
             {
-                if (i == 0) break; // Если попытки подключения исчерпаны, то пропускаем цикл.
+                PrintAll(weather, townName, i);
+            }
+            Console.ReadKey();
+        }
 
-                Console.WriteLine("Введите город и страну через запятую на английском языке, \n" +
-                                  "например, \"Moscow, Russia\". \n" +
-                                  "Для выхода наберите \"Exit\" или \"E\".");
-                townName = Console.ReadLine();
-                // Если пользователь пише exit или e то выходим из цикла.
-                if ((townName.ToLower() == "exit") || (townName.ToLower() == "e"))
-                    break;
-                // Проверяем название города.
-                CheckTownName(townName, out townExistStatus, out townLink);
-                //Console.WriteLine(townExistStatus);
-
-            } while (!townExistStatus); // Выходим, если получили одно точное соответсвие.
-
-            // Отправка запроса погоды для выбранного города.
-            if ((townName.ToLower() != "exit") && (townName.ToLower() != "e"))
-                 CheckWeather(townLink);
-
-            Console.WriteLine("\nОтлично поработали!");
-            Console.ReadLine();
+        static async void PrintAll (Weather weather, string[] townName,int i)
+        {
+                await weather.PrintWeatherInTown(townName[i]);
         }
 
         #region Проверка интернет соединения
@@ -112,100 +89,5 @@ namespace WeatherApp
         }
         #endregion
 
-        #region Проверка наличия места
-        private static void CheckTownName(string townName, out bool townExistStatus, out string townLink) // Проверка названия места.
-        {
-            // Апи для проверки страны и города.
-            const string autocompleteUrl = "http://autocomplete.wunderground.com/aq?query="; 
-            string url = autocompleteUrl + townName; // Формируем ссылку с городом.
-            WebClient client = new WebClient();
-            byte[] data = null; // Сюда придет ответ от API.
-
-            try
-            {
-                data = client.DownloadData(new Uri(url)); // Загружаем данные в массив.
-            }
-            catch (Exception exception) // Ловим исключение, если API не работает.
-            {
-                Console.WriteLine("Проблемы с API. Попробуйте еще раз.");
-                //Console.WriteLine(exception.Message.ToString());
-            }
-            if (data != null) // Если данные загрузились
-            {
-                string jsonData = Encoding.Default.GetString(data); // Кодируем массив в строку.
-                //Создаем DataSet для json
-                DataSet townDataSet = JsonConvert.DeserializeObject<DataSet>(jsonData);
-                //Создаем таблицу и заполняем ее значениями из json (RESULTS).
-                DataTable townDataTable = townDataSet.Tables["RESULTS"]; 
-                Console.WriteLine();
-                foreach (DataRow townRow in townDataTable.Rows)
-                {
-                    Console.WriteLine(townRow["name"]);
-                }
-                // Возвращаем true, только если совпадение однозначное!
-                if (townDataTable.Rows.Count == 1)
-                {
-                    townExistStatus = true;
-                    DataRow linkRow = townDataTable.Rows[0];
-                    townLink = linkRow["l"].ToString();
-                }
-                else
-                {
-                    townExistStatus = false;
-                    townLink = "";
-                }
-            }
-            else // Если данные не загрузились, в т.ч. если ответ пустой.
-            {
-                townExistStatus = false;
-                townLink = "";
-            }
-        }
-        #endregion
-
-        #region Запрос данных о погоде
-
-        private static void CheckWeather(string townLink)
-        {
-            WebClient client = new WebClient();
-            byte[] data = null; // Сюда придет ответ от API.
-            string url = apiWeatherUrl + "forecast/" + langApi + townLink + ".json";
-
-            try
-            {
-                data = client.DownloadData(new Uri(url)); // Загружаем данные в массив.
-            }
-            catch (Exception exception) // Ловим исключение, если API не работает.
-            {
-                Console.WriteLine("Проблемы с API. Попробуйте еще раз.");
-                //Console.WriteLine(exception.Message.ToString());
-            }
-
-            if (data == null)
-                return;
-
-            var jsonData = Encoding.UTF8.GetString(data);
-            //Console.WriteLine(jsonData);
-
-            var forecast = ParseForecastDays(jsonData);
-
-            // Выводим погоду на сегодня и на завтра.
-            // Для простоты мы не парсим даты из JSON и пользуемся тем, что они идут всегда по порядку друг за другом, начиная с сегодняшней.
-            var today = forecast[0];
-            var tomorrow = forecast[1];
-            Console.WriteLine($"Temperature today: {today.High}/{today.Low} ({today.Conditions})");
-            Console.WriteLine($"Tomorrow: {tomorrow.High}/{tomorrow.Low} ({tomorrow.Conditions})");
-        }
-
-        private static List<ForecastDay> ParseForecastDays(string jsonData)
-        {
-            var parsed = JObject.Parse(jsonData);
-            return parsed["forecast"]["simpleforecast"]["forecastday"]
-                .Children()
-                .Select(item => JsonConvert.DeserializeObject<ForecastDay>(item.ToString(), SerializerSettings))
-                .ToList();
-        }
-
-        #endregion
     }
 }
